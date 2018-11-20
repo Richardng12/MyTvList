@@ -9,7 +9,7 @@
       homescreen on Android. See https://developers.google.com/web/fundamentals/engage-and-retain/web-app-manifest/
     -->
         <!-- Latest compiled and minified CSS -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json">
     <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
     <!--
@@ -22,33 +22,15 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>MyTvList</title>
-    <meta name="google-signin-client_id" content="769019956087-buogke6udbcqcirqpkbdbhekuuv2d854.apps.googleusercontent.com">
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <meta name="google-signin-scope" content="profile email">
 
-    <style>
-      .g-signin2{
-          margin-left:500px;
-          margin-top:200px;
-      }
-      .data{
-        display:none;
-      }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
   </head>
   <body>
-    <noscript>
-      You need to enable JavaScript to run this app.
-    </noscript>
-    <div id="root"></div>
-    <div class="g-signin2" data-onsuccess="onSignIn"></div>
-    <div class="data">
-      <p>Profile Details</p>
-      <img id="pic" class="img-circle" width="100" height="100"/>
-      <p>Email Address</p>
-      <p id="email" class="alert alert-danger"></p>
-      <button onClick="signOut()" class="btn btn-danger">SignOut</button>
-    </div>
+    
+     <div id="root"></div>
+
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.

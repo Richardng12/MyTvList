@@ -2,7 +2,7 @@ import * as React from 'react';
 import './App.css';
 import tvlogo from './tvlogo.png';
 import Login from './Login'
-import 'src/css/styles.css';
+import './css/styles.css';
 
 
 interface IState {

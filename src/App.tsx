@@ -1,11 +1,16 @@
 import * as React from 'react';
 import './App.css';
-import logo from './logo.svg';
+import tvlogo from './tvlogo.png';
 import Login from './Login'
 
 
 class App extends React.Component {
   public getResponse = (response: any) => {    
+    if(response.error){
+      console.log(response.error)
+    }else{
+
+    
     var profile = response.getBasicProfile();
     console.log("ID: " + profile.getId()); // Don't send this directly to your server!
     console.log('Full Name: ' + profile.getName());
@@ -18,21 +23,23 @@ class App extends React.Component {
     var id_token = response.getAuthResponse().id_token;
     console.log("ID Token: " + id_token); 
   }
+}
 
   public render() {
     return (
-      <div className="App">
-     <Login Callback={this.getResponse}/>
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.tsx</code> and save to reload.
-        </p>
+      <div>
+			<div className="header-wrapper">
+				<div className="container header">
+					<img src={tvlogo} height='40'/>&nbsp; MyTvList &nbsp;
+					   <Login Callback={this.getResponse}/>
+				</div>
+			</div>
       </div>
-    );
+    )
   }
 }
+   
+       
+  
 
 export default App;

@@ -60,13 +60,15 @@ interface IState {
   currentShow: any,
   TvList: any[],
   open: boolean,
+  openEdit:boolean,
   uploadFileList: any,
   isLoggedin: boolean,
   ImageUrl: any,
   Creator: any,
   selection: any,
   id: any,
-  clicked: boolean
+  clicked: boolean,
+  Authentication: any
 }
 
 class App extends React.Component<WithStyles<typeof styles>, IState> {
@@ -80,11 +82,13 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
       Creator: "",
       TvList: [],
       open: false,
+      openEdit: false,
       uploadFileList: null,
-      currentShow: "",
+      currentShow: {"id":0, "title":"Loading ","url":"","tags":"⚆ _ ⚆","score": "1","width":"0","height":"0","comments": "hi", "author": "Richard", "authentication": "876876adsf"},
       selection: "",
       id: "",
-      clicked: false
+      clicked: false,
+      Authentication:""
     });
     this.enableLogin = this.enableLogin.bind(this);
     this.disableLogin = this.disableLogin.bind(this);
@@ -98,9 +102,12 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
   public imageClick = (index: any) => {
     const list = this.state.TvList;
     console.log(list[index].id)
+    console.log(list[index])
+    console.log(list[index].authentication)
     this.setState({
       id: list[index].id,
-      clicked: true
+      clicked: true,
+      currentShow: list[index],
     });
 
   }
@@ -220,6 +227,7 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
     formData.append("Score", score)
     formData.append("Comments", comment)
     formData.append("Author", this.state.Creator)
+    formData.append("Authentication", this.state.Authentication)
     formData.append("image", imageFile)
 
 
@@ -262,7 +270,8 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
 
       this.setState({
         ImageUrl: profile.getImageUrl(),
-        Creator: profile.getName()
+        Creator: profile.getName(),
+        Authentication: profile.getId()
       })
 
       this.enableLogin();
@@ -277,6 +286,17 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
   // Modal close
   private onCloseModal = () => {
     this.setState({ open: false });
+  };
+
+
+  private onOpenModalEdit = () => {
+    console.log(this.state.currentShow)
+    this.setState({ openEdit: true });
+  };
+
+  // Modal close
+  private onCloseModalEdit = () => {
+    this.setState({ openEdit: false });
   };
 
   private deleteShow(id: any) {
@@ -298,25 +318,71 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
       })
   }
 
+  private updateShow = () => {
+    const titleInput = document.getElementById("show-edit-title-input") as HTMLInputElement
+    const tagInput = document.getElementById("show-edit-tag-input") as HTMLInputElement
+    const scoreInput = document.getElementById("show-edit-score-input") as HTMLInputElement
+    const commentInput = document.getElementById("show-edit-comment-input") as HTMLInputElement
+
+    if (titleInput === null || tagInput === null) {
+      return;
+    }
+    const currentShow = this.state.currentShow
+    const url = "https://tvlistapis.azurewebsites.net/api/TvList/" + currentShow.id
+    const updatedTitle = titleInput.value
+    const updatedTag = tagInput.value
+    const updatedScore = scoreInput.value
+    const updatedComment = commentInput.value
+    fetch(url, {
+      body: JSON.stringify({
+        "height": currentShow.height,
+        "id": currentShow.id,
+        "tags": updatedTag,
+        "title": updatedTitle,
+        "url": currentShow.url,
+        "width": currentShow.width,
+        "score": updatedScore,
+        "comments": updatedComment,
+        "author": currentShow.author,
+        "authentication": currentShow.authentication
+      }),
+      headers: { 'cache-control': 'no-cache', 'Content-Type': 'application/json' },
+      method: 'PUT'
+    })
+      .then((response: any) => {
+        if (!response.ok) {
+          // Error State
+          alert(response.statusText + " " + url)
+        } else {
+          this.onCloseModalEdit();
+          this.fetchShows("");
+          this.forceUpdate();
+        }
+      })
+  }
+
   public displayPage() {
 
     if (this.state.isLoggedin) {
       const { open } = this.state;
-
+      const verify = this.state.Authentication == this.state.currentShow.authentication
+      console.log(this.state.Authentication)
+      console.log(this.state.currentShow.authentication)
+      console.log(verify)
       return (<div>
-        <div style={{ display: 'inline-block', textAlign: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
           <h1><img src={tvlogo} height='90' width='200' /></h1>
           <GoogleLogout
             buttonText="LOGOUT"
             onLogoutSuccess={this.logout}
           >
           </GoogleLogout>
-          {(this.state.clicked) ?
-            <Button variant="contained" color="primary" onClick={this.deleteShow.bind(this, this.state.id)}>Delete </Button>
+          {(this.state.clicked && verify) ?
+            <Button className = "delete" variant="contained" color="primary" onClick={this.deleteShow.bind(this, this.state.id)}>Delete </Button>
             : ""}
 
-            {(!this.state.clicked) ?
-            <Button variant="contained" color="primary" disabled onClick={this.deleteShow.bind(this, this.state.id)}>Delete </Button>
+          {(!this.state.clicked || !verify) ?
+            <Button className = "delete" variant="contained" color="primary" disabled onClick={this.deleteShow.bind(this, this.state.id)}>Delete </Button>
             : ""}
 
           <Button variant="contained" color="primary" onClick={this.onOpenModal}>Add Show</Button>
@@ -350,9 +416,42 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
             </form>
           </Modal>
 
+           {(this.state.clicked && verify ) ?
+          <Button variant="contained" color="primary" onClick={this.onOpenModalEdit}>Edit </Button>
+          : ""}
+
+          {(!this.state.clicked || !verify) ?
+          <Button variant="contained" color="primary" disabled onClick={this.onOpenModalEdit}>Edit </Button>
+          : ""}
+          <Modal open={this.state.openEdit} onClose={this.onCloseModalEdit}>
+          
+            <form>
+              <div className="form-group">
+                <label>Tv Show Title</label>
+                <input type="text" className="form-control" id="show-edit-title-input" placeholder="Enter Title" />
+                <small className="form-text text-muted">You can edit any show later</small>
+              </div>
+              <div className="form-group">
+                <label>Tag</label>
+                <input type="text" className="form-control" id="show-edit-tag-input" placeholder="Enter Tag" />
+                <small className="form-text text-muted">Tag is used for search</small>
+              </div>
+              <div className="form-group">
+                <label>Score</label>
+                <input type="number" min="0" max="10" className="form-control" id="show-edit-score-input" placeholder="Enter Score" />
+                <small className="form-text text-muted">Out of 10</small>
+              </div>
+              <div className="form-group">
+                <label>Comments</label>
+                <input type="text" className="form-control" id="show-edit-comment-input" placeholder="Enter Comments" />
+                <small className="form-text text-muted">Comments about the show</small>
+              </div>
+              <button type="button" className="btn" onClick={this.updateShow}>Save</button>
+            </form>
+          </Modal>
         </div>
 
-        <div style={{ display: 'inline-block', paddingLeft: '1250px' }} >
+        <div style={{ paddingLeft: '1200px', paddingBottom:'100px'}} >
           <h4> <img style={{ height: '50px', width: '50px', borderRadius: '50%' }} src={this.state.ImageUrl} /></h4>
           <h3> {this.state.Creator}</h3>
         </div>

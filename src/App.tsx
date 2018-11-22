@@ -19,6 +19,7 @@ import Modal from 'react-responsive-modal';
 const styles = (theme: Theme) =>
   createStyles({
     root: {
+      height: 500,
       width: '100%',
       marginTop: theme.spacing.unit * 3,
       overflowX: 'auto',
@@ -67,7 +68,8 @@ interface IState {
   selection: any,
   id: any,
   clicked: boolean,
-  Authentication: any
+  Authentication: any,
+  searchByTag: any
 }
 
 class App extends React.Component<WithStyles<typeof styles>, IState> {
@@ -87,7 +89,9 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
       selection: "",
       id: "",
       clicked: false,
-      Authentication:""
+      Authentication:"",
+      searchByTag: ""
+
     });
     this.enableLogin = this.enableLogin.bind(this);
     this.disableLogin = this.disableLogin.bind(this);
@@ -96,6 +100,7 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
     this.fetchShows("")
     this.handleFileUpload = this.handleFileUpload.bind(this)
     this.uploadShow = this.uploadShow.bind(this)
+    this.searchByTag = this.searchByTag.bind(this)
   }
 
   public imageClick = (index: any) => {
@@ -359,6 +364,15 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
       })
   }
 
+  private searchByTag() {
+    const textBox = document.getElementById("search-tag-textbox") as HTMLInputElement
+    if (textBox === null) {
+        return;
+    }
+    const tag = textBox.value
+    this.fetchShows(tag)
+}
+
   public displayPage() {
 
     if (this.state.isLoggedin) {
@@ -368,22 +382,24 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
       console.log(this.state.currentShow.authentication)
       console.log(verify)
       return (<div>
-        <div style={{ textAlign: 'center' }}>
+        <div style={{ textAlign: 'center', }}>
           <h1><img src={tvlogo} height='90' width='200' /></h1>
-          <GoogleLogout
+          <div>
+          <GoogleLogout 
             buttonText="LOGOUT"
             onLogoutSuccess={this.logout}
           >
           </GoogleLogout>
+          </div>
           {(this.state.clicked && verify) ?
-            <Button className = "delete" variant="contained" color="primary" onClick={this.deleteShow.bind(this, this.state.id)}>Delete </Button>
+            <Button className = "delete" variant="contained"  color="primary" onClick={this.deleteShow.bind(this, this.state.id)}>Delete </Button>
             : ""}
 
           {(!this.state.clicked || !verify) ?
-            <Button className = "delete" variant="contained" color="primary" disabled onClick={this.deleteShow.bind(this, this.state.id)}>Delete </Button>
+            <Button className = "delete" variant="contained"  color="primary" disabled onClick={this.deleteShow.bind(this, this.state.id)}>Delete </Button>
             : ""}
 
-          <Button variant="contained" color="primary" onClick={this.onOpenModal}>Add Show</Button>
+          <Button variant="contained" style = {{marginLeft: '50px'}} color="primary" onClick={this.onOpenModal}>Add Show</Button>
           <Modal open={open} onClose={this.onCloseModal}>
             <form>
               <div className="form-group">
@@ -415,11 +431,11 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
           </Modal>
 
            {(this.state.clicked && verify ) ?
-          <Button variant="contained" color="primary" onClick={this.onOpenModalEdit}>Edit </Button>
+          <Button variant="contained" color="primary" style = {{marginLeft: '50px'}} onClick={this.onOpenModalEdit}>Edit </Button>
           : ""}
 
           {(!this.state.clicked || !verify) ?
-          <Button variant="contained" color="primary" disabled onClick={this.onOpenModalEdit}>Edit </Button>
+          <Button variant="contained" color="primary" style = {{marginLeft: '50px'}} disabled onClick={this.onOpenModalEdit}>Edit </Button>
           : ""}
           <Modal open={this.state.openEdit} onClose={this.onCloseModalEdit}>
           
@@ -452,6 +468,10 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
         <div>
           <h4> <img style={{ height: '50px', width: '50px', borderRadius: '50%' }} src={this.state.ImageUrl} /></h4>
           <h3> {this.state.Creator}</h3>
+          </div>
+          <div>
+          <input type="text" id="search-tag-textbox" className="form-control" placeholder="Search By Tags" />
+          <Button  variant="contained" color="primary" style={{marginLeft: '680px'}} className="btn btn-outline-secondary search-button" onClick={this.searchByTag}>Search</Button>
         </div>
         <div>
           {this.makeTable()}

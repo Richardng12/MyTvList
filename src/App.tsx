@@ -53,7 +53,6 @@ function createData(Image: any, Title: any, Score: any, Tags: any, Comments: any
 }
 
 var rows = [
-  createData(<img src={tvlogo} height='50' width='50' />, 159, 6.0, 24, 4.0, 'Me'),
 ];
 
 interface IState {
@@ -107,7 +106,7 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
     this.setState({
       id: list[index].id,
       clicked: true,
-      currentShow: list[index],
+      currentShow: list[index], 
     });
 
   }
@@ -116,7 +115,6 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
     const list = this.state.TvList;
 
     rows = [
-      createData('Please', 'add', 'a', 'Tv', 'show', '!'),
     ];
 
     for (let i = 0; i < list.length; i++) {
@@ -451,7 +449,7 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
           </Modal>
         </div>
 
-        <div style={{ paddingLeft: '1200px', paddingBottom:'100px'}} >
+        <div>
           <h4> <img style={{ height: '50px', width: '50px', borderRadius: '50%' }} src={this.state.ImageUrl} /></h4>
           <h3> {this.state.Creator}</h3>
         </div>

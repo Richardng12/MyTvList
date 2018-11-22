@@ -11,7 +11,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import withRoot from './WithRoot';
-import { Theme, createStyles } from '@material-ui/core';
+import { Theme, createStyles, Button } from '@material-ui/core';
 import { GoogleLogout } from 'react-google-login';
 import Modal from 'react-responsive-modal';
 
@@ -64,6 +64,9 @@ interface IState {
   isLoggedin: boolean,
   ImageUrl: any,
   Creator: any,
+  selection: any,
+  id: any,
+  clicked: boolean
 }
 
 class App extends React.Component<WithStyles<typeof styles>, IState> {
@@ -78,7 +81,10 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
       TvList: [],
       open: false,
       uploadFileList: null,
-      currentShow: ""
+      currentShow: "",
+      selection: "",
+      id: "",
+      clicked: false
     });
     this.enableLogin = this.enableLogin.bind(this);
     this.disableLogin = this.disableLogin.bind(this);
@@ -89,15 +95,26 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
     this.uploadShow = this.uploadShow.bind(this)
   }
 
+  public imageClick = (index: any) => {
+    const list = this.state.TvList;
+    console.log(list[index].id)
+    this.setState({
+      id: list[index].id,
+      clicked: true
+    });
+
+  }
+
   public makeTable() {
     const list = this.state.TvList;
+
     rows = [
-      createData(<img src={tvlogo} height='50' width='50' />, 159, 6.0, 24, 4.0, 'Me'),
+      createData('Please', 'add', 'a', 'Tv', 'show', '!'),
     ];
-    
-    for(let i = 0;i<list.length;i++){
+
+    for (let i = 0; i < list.length; i++) {
       const show = list[i];
-  rows.push( createData(<img src={show.url} height='50' width='50' />,<>{show.title}</>,<>{show.score}</>, <>{show.tags}</>,<>{show.comments}</>,<>{show.Author}</>));  
+      rows.push(createData(<h5><img src={show.url} height='100' width='100' onClick={() => this.imageClick(i)} /></h5>, <>{show.title}</>, <>{show.score}</>, <>{show.tags}</>, <>{show.comments}</>, <>{show.author}</>));
     }
     return (
       <Paper className={this.props.classes.root}>
@@ -216,7 +233,10 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
           // Error State
           alert(response.statusText)
         } else {
-          location.reload()
+          this.onCloseModal();
+          this.fetchShows("");
+          this.forceUpdate();
+
         }
       })
   }
@@ -231,13 +251,14 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
     } else {
 
       var profile = response.getBasicProfile();
-     
+      console.log("ID: " + profile.getId());
+
 
       // The ID token you need to pass to your backend:
       var id_token = response.getAuthResponse().id_token;
       console.log("ID Token: " + id_token);
 
-      
+
 
       this.setState({
         ImageUrl: profile.getImageUrl(),
@@ -258,19 +279,47 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
     this.setState({ open: false });
   };
 
+  private deleteShow(id: any) {
+    const url = "https://tvlistapis.azurewebsites.net/api/TvList/" + id
+
+    fetch(url, {
+      method: 'DELETE'
+    })
+      .then((response: any) => {
+        if (!response.ok) {
+          // Error Response
+          alert(response.statusText)
+        }
+        else {
+          this.onCloseModal();
+          this.fetchShows("");
+          this.forceUpdate();
+        }
+      })
+  }
+
   public displayPage() {
 
     if (this.state.isLoggedin) {
       const { open } = this.state;
+
       return (<div>
         <div style={{ display: 'inline-block', textAlign: 'center' }}>
           <h1><img src={tvlogo} height='90' width='200' /></h1>
           <GoogleLogout
-            buttonText="Logout"
+            buttonText="LOGOUT"
             onLogoutSuccess={this.logout}
           >
           </GoogleLogout>
-          <div className="btn btn-primary btn-action btn-add" onClick={this.onOpenModal}>Add Show</div>
+          {(this.state.clicked) ?
+            <Button variant="contained" color="primary" onClick={this.deleteShow.bind(this, this.state.id)}>Delete </Button>
+            : ""}
+
+            {(!this.state.clicked) ?
+            <Button variant="contained" color="primary" disabled onClick={this.deleteShow.bind(this, this.state.id)}>Delete </Button>
+            : ""}
+
+          <Button variant="contained" color="primary" onClick={this.onOpenModal}>Add Show</Button>
           <Modal open={open} onClose={this.onCloseModal}>
             <form>
               <div className="form-group">
@@ -280,7 +329,7 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
               </div>
               <div className="form-group">
                 <label>Score</label>
-                <input type="text" className="form-control" id="show-score-input" placeholder="Enter Score" />
+                <input type="number" min="0" max="10" className="form-control" id="show-score-input" placeholder="Enter Score" />
                 <small className="form-text text-muted">Out of 10</small>
               </div>
               <div className="form-group">
@@ -303,7 +352,7 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
 
         </div>
 
-        <div style={{ display: 'inline-block', paddingLeft: '1000px' }} >
+        <div style={{ display: 'inline-block', paddingLeft: '1250px' }} >
           <h4> <img style={{ height: '50px', width: '50px', borderRadius: '50%' }} src={this.state.ImageUrl} /></h4>
           <h3> {this.state.Creator}</h3>
         </div>

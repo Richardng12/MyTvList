@@ -31,10 +31,10 @@ const styles = (theme: Theme) =>
       overflowX: 'auto',
     },
     table: {
-      minWidth: 700,
+      minWidth: 600,
     },
     row: {
-      ["&:nth-of-type()"]: {
+      "&:nth-of-type()": {
         backgroundColor: theme.palette.secondary.dark,
       },
     },
@@ -77,7 +77,6 @@ interface IState {
   Authentication: any,
   searchByTag: any,
   index: string,
-  choice: string,
 }
 
 class App extends React.Component<WithStyles<typeof styles>, IState> {
@@ -100,7 +99,6 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
       Authentication: "",
       searchByTag: "",
       index: "",
-      choice: ""
     });
     this.enableLogin = this.enableLogin.bind(this);
     this.disableLogin = this.disableLogin.bind(this);
@@ -115,16 +113,12 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
 
   public imageClick = (index: any) => {
     const list = this.state.TvList;
-    console.log(list[index].id)
-    console.log(list[index])
-    console.log(list[index].authentication)
 
     this.setState({
       id: list[index].id,
       clicked: true,
       currentShow: list[index],
       index: index,
-      choice: '&:nth-of-type(' + index + ')'
     });
 
   }
@@ -155,11 +149,12 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
           <TableBody>
             {rows.map(row => {
               return (
-                <TableRow className={this.props.classes.row} key={row.id}>
+                <TableRow  hover className={this.props.classes.row} key={row.id}>
+                  {console.log(row.id)}
                   <CustomTableCell component="th" scope="row">
                     {row.Image}
                   </CustomTableCell>
-                  <CustomTableCell>{row.Title}</CustomTableCell>
+                  <CustomTableCell >{row.Title}</CustomTableCell>
                   <CustomTableCell numeric>{row.Score}</CustomTableCell>
                   <CustomTableCell>{row.Tags}</CustomTableCell>
                   <CustomTableCell>{row.Comments}</CustomTableCell>
@@ -537,8 +532,8 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
           <h4> <img style={{ height: '50px', width: '50px', borderRadius: '50%', marginRight:'45px' }} src={this.state.ImageUrl} /></h4>
           <div style={{marginRight:'25px'}}>
           <FacebookShareButton url="https://github.com/swozniak/react-simple-share" />
-            <RedditShareButton url="https://github.com/swozniak/react-simple-share" />
-            <TwitterShareButton url="https://github.com/swozniak/react-simple-share/" />
+          <RedditShareButton url="https://github.com/swozniak/react-simple-share" />
+          <TwitterShareButton url="https://github.com/swozniak/react-simple-share/" />
             </div>
         </div>
         <div style={{ marginTop: '20px' }}>

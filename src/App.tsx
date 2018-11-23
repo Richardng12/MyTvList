@@ -14,7 +14,8 @@ import withRoot from './WithRoot';
 import { Theme, createStyles, Button } from '@material-ui/core';
 import { GoogleLogout } from 'react-google-login';
 import Modal from 'react-responsive-modal';
-
+import MediaStreamRecorder from 'msr';
+import Chatbot from './Chatbot'
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -28,8 +29,9 @@ const styles = (theme: Theme) =>
       minWidth: 700,
     },
     row: {
-      '&:nth-of-type(odd)': {
-        backgroundColor: theme.palette.background.default,
+      '&:nth-of-type(${this.state.index})': {
+        backgroundColor: theme.palette.secondary.dark,
+
       },
     },
   });
@@ -60,7 +62,7 @@ interface IState {
   currentShow: any,
   TvList: any[],
   open: boolean,
-  openEdit:boolean,
+  openEdit: boolean,
   uploadFileList: any,
   isLoggedin: boolean,
   ImageUrl: any,
@@ -69,7 +71,8 @@ interface IState {
   id: any,
   clicked: boolean,
   Authentication: any,
-  searchByTag: any
+  searchByTag: any,
+  index: string
 }
 
 class App extends React.Component<WithStyles<typeof styles>, IState> {
@@ -85,12 +88,13 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
       open: false,
       openEdit: false,
       uploadFileList: null,
-      currentShow: {"id":0, "title":"Loading ","url":"","tags":"⚆ _ ⚆","score": "1","width":"0","height":"0","comments": "hi", "author": "Richard", "authentication": "876876adsf"},
+      currentShow: { "id": 0, "title": "Loading ", "url": "", "tags": "⚆ _ ⚆", "score": "1", "width": "0", "height": "0", "comments": "hi", "author": "Richard", "authentication": "876876adsf" },
       selection: "",
       id: "",
       clicked: false,
-      Authentication:"",
-      searchByTag: ""
+      Authentication: "",
+      searchByTag: "",
+      index: ""
 
     });
     this.enableLogin = this.enableLogin.bind(this);
@@ -101,6 +105,7 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
     this.handleFileUpload = this.handleFileUpload.bind(this)
     this.uploadShow = this.uploadShow.bind(this)
     this.searchByTag = this.searchByTag.bind(this)
+    this.searchTagByVoice = this.searchTagByVoice.bind(this)
   }
 
   public imageClick = (index: any) => {
@@ -108,10 +113,12 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
     console.log(list[index].id)
     console.log(list[index])
     console.log(list[index].authentication)
+
     this.setState({
       id: list[index].id,
       clicked: true,
-      currentShow: list[index], 
+      currentShow: list[index],
+      index: index
     });
 
   }
@@ -364,13 +371,72 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
       })
   }
 
-  private searchByTag() {
+  private searchByTag(res: any) {
     const textBox = document.getElementById("search-tag-textbox") as HTMLInputElement
     if (textBox === null) {
-        return;
+      return;
     }
     const tag = textBox.value
     this.fetchShows(tag)
+  }
+
+  private searchTagByVoice() {
+    const mediaConstraints = {
+      audio: true
+  }
+  const onMediaSuccess = (stream: any) => {
+      const mediaRecorder = new MediaStreamRecorder(stream);
+      mediaRecorder.mimeType = 'audio/wav'; // check this line for audio/wav
+      mediaRecorder.ondataavailable = (blob: any) => {
+          this.postAudio(blob);
+          mediaRecorder.stop()
+      }
+      mediaRecorder.start(3000);
+  }
+
+  navigator.getUserMedia(mediaConstraints, onMediaSuccess, onMediaError)
+
+  function onMediaError(e: any) {
+      console.error('media error', e);
+  }
+}
+private postAudio(blob: any) {
+  let accessToken: any;
+  fetch('https://westus.api.cognitive.microsoft.com/sts/v1.0/issueToken', {
+      headers: {
+          'Content-Length': '0',
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Ocp-Apim-Subscription-Key': '3f31ffdbc4f04808ac72d3ef1aac42a2'
+      },
+      method: 'POST'
+  }).then((response) => {
+      // console.log(response.text())
+      return response.text()
+  }).then((response) => {
+      console.log(response)
+      accessToken = response
+  }).catch((error) => {
+      console.log("Error", error)
+  });
+  // posting audio
+  fetch('https://westus.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=en-US', {
+      body: blob, // this is a .wav audio file    
+      headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer' + accessToken,
+          'Content-Type': 'audio/wav;codec=audio/pcm; samplerate=16000',
+          'Ocp-Apim-Subscription-Key': '3f31ffdbc4f04808ac72d3ef1aac42a2'
+      },
+      method: 'POST'
+  }).then((res) => {
+      return res.json()
+  }).then((res: any) => {
+      console.log(res)
+      const textBox = document.getElementById("search-tag-textbox") as HTMLInputElement
+    textBox.value = (res.DisplayText as string).slice(0, -1)
+  }).catch((error) => {
+      console.log("Error", error)
+  });
 }
 
   public displayPage() {
@@ -385,21 +451,22 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
         <div style={{ textAlign: 'center', }}>
           <h1><img src={tvlogo} height='90' width='200' /></h1>
           <div>
-          <GoogleLogout 
-            buttonText="LOGOUT"
-            onLogoutSuccess={this.logout}
-          >
-          </GoogleLogout>
+          <Chatbot />
+            <GoogleLogout
+              buttonText="LOGOUT"
+              onLogoutSuccess={this.logout}
+            >
+            </GoogleLogout>
           </div>
           {(this.state.clicked && verify) ?
-            <Button className = "delete" variant="contained"  color="primary" onClick={this.deleteShow.bind(this, this.state.id)}>Delete </Button>
+            <Button className="delete" variant="contained" style={{ marginTop: '10px' }} color="primary" onClick={this.deleteShow.bind(this, this.state.id)}>Delete </Button>
             : ""}
 
           {(!this.state.clicked || !verify) ?
-            <Button className = "delete" variant="contained"  color="primary" disabled onClick={this.deleteShow.bind(this, this.state.id)}>Delete </Button>
+            <Button className="delete" variant="contained" style={{ marginTop: '10px' }} color="primary" disabled onClick={this.deleteShow.bind(this, this.state.id)}>Delete </Button>
             : ""}
 
-          <Button variant="contained" style = {{marginLeft: '50px'}} color="primary" onClick={this.onOpenModal}>Add Show</Button>
+          <Button variant="contained" style={{ marginLeft: '50px', marginTop: '10px' }} color="primary" onClick={this.onOpenModal}>Add Show</Button>
           <Modal open={open} onClose={this.onCloseModal}>
             <form>
               <div className="form-group">
@@ -430,15 +497,15 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
             </form>
           </Modal>
 
-           {(this.state.clicked && verify ) ?
-          <Button variant="contained" color="primary" style = {{marginLeft: '50px'}} onClick={this.onOpenModalEdit}>Edit </Button>
-          : ""}
+          {(this.state.clicked && verify) ?
+            <Button variant="contained" color="primary" style={{ marginLeft: '50px', marginTop: '10px' }} onClick={this.onOpenModalEdit}>Edit </Button>
+            : ""}
 
           {(!this.state.clicked || !verify) ?
-          <Button variant="contained" color="primary" style = {{marginLeft: '50px'}} disabled onClick={this.onOpenModalEdit}>Edit </Button>
-          : ""}
+            <Button variant="contained" color="primary" style={{ marginLeft: '50px', marginTop: '10px' }} disabled onClick={this.onOpenModalEdit}>Edit </Button>
+            : ""}
           <Modal open={this.state.openEdit} onClose={this.onCloseModalEdit}>
-          
+
             <form>
               <div className="form-group">
                 <label>Tv Show Title</label>
@@ -465,13 +532,14 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
           </Modal>
         </div>
 
-        <div>
+        <div style={{ position: 'absolute', right: '0', top: '0' }}>
           <h4> <img style={{ height: '50px', width: '50px', borderRadius: '50%' }} src={this.state.ImageUrl} /></h4>
           <h3> {this.state.Creator}</h3>
-          </div>
-          <div>
+        </div>
+        <div style={{ marginTop: '20px' }}>
           <input type="text" id="search-tag-textbox" className="form-control" placeholder="Search By Tags" />
-          <Button  variant="contained" color="primary" style={{marginLeft: '680px'}} className="btn btn-outline-secondary search-button" onClick={this.searchByTag}>Search</Button>
+          <Button variant="contained" color="primary" style={{ marginLeft: '662px', marginTop: '10px' }} className="btn btn-outline-secondary search-button" onClick={this.searchByTag}>Search</Button>
+          <div className="btn" style={{marginTop:'12px'}} onClick={this.searchTagByVoice}><i className="fa fa-microphone" /></div>
         </div>
         <div>
           {this.makeTable()}

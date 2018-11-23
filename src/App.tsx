@@ -365,7 +365,7 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
       })
   }
 
-  private searchByTag(res: any) {
+  private searchByTag() {
     const textBox = document.getElementById("search-tag-textbox") as HTMLInputElement
     if (textBox === null) {
       return;
@@ -428,19 +428,19 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
       console.log(res)
       const textBox = document.getElementById("search-tag-textbox") as HTMLInputElement
       textBox.value = (res.DisplayText as string).slice(0, -1)
+      this.searchByTag();
     }).catch((error) => {
       console.log("Error", error)
     });
   }
 
 
+
+
   public displayPage() {
     if (this.state.isLoggedin) {
       const { open } = this.state;
       const verify = this.state.Authentication == this.state.currentShow.authentication
-      console.log(this.state.Authentication)
-      console.log(this.state.currentShow.authentication)
-      console.log(verify)
       return (<div>
         <div style={{ textAlign: 'center', }}>
           <h1><img src={tvlogo} height='90' width='200' /></h1>
@@ -503,7 +503,7 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
             <form>
               <div className="form-group">
                 <label>Tv Show Title</label>
-                <input type="text" className="form-control" id="show-edit-title-input" placeholder="Enter Title"  />
+                <input type="text" className="form-control" id="show-edit-title-input" placeholder="Enter Title" value={this.state.currentShow.title}  />
                 <small className="form-text text-muted">You can edit any show later</small>
               </div>
               <div className="form-group">

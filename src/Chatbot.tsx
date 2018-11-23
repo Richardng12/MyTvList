@@ -1,14 +1,18 @@
 import * as React from 'react';
 import ChatBot from 'react-simple-chatbot';
 
-export default class Chatbot extends React.Component<{}>{
+interface IProps{
+  name: any
+}
+
+export default class Chatbot extends React.Component<IProps>{
   render() {
     return (
       <ChatBot floating={true}
     steps={[
       {
         id: '1',
-        message: 'Hello, Welcome to MyTvList!, please select one of the following options to get help',
+        message: 'Hello ' + this.props.name + ', Welcome to MyTvList!, please select one of the following options to get help',
         trigger: '2',
       },
       {

@@ -529,9 +529,9 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
         <div style={{ position: 'absolute', right: '0', top: '0' }}>
           <h4> <img style={{ height: '50px', width: '50px', borderRadius: '50%', marginRight:'45px' }} src={this.state.ImageUrl} /></h4>
           <div style={{marginRight:'25px'}}>
-          <FacebookShareButton url="https://github.com/swozniak/react-simple-share" />
-          <RedditShareButton url="https://github.com/swozniak/react-simple-share" />
-          <TwitterShareButton url="https://github.com/swozniak/react-simple-share/" />
+          <FacebookShareButton url="http://mytvlistwebapp.azurewebsites.net/" />
+          <RedditShareButton url="http://mytvlistwebapp.azurewebsites.net/" />
+          <TwitterShareButton url="http://mytvlistwebapp.azurewebsites.net/" />
             </div>
         </div>
         <div style={{ marginTop: '20px' }}>

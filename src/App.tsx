@@ -534,9 +534,9 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
           <TwitterShareButton url="http://mytvlistwebapp.azurewebsites.net/" />
             </div>
         </div>
-        <div style={{ marginTop: '20px' }}>
+        <div style={{ marginTop: '20px', textAlign: 'center'  }}>
           <input type="text" id="search-tag-textbox" className="form-control" placeholder="Search By Tags" />
-          <Button variant="contained" color="primary" style={{ marginLeft: '662px', marginTop: '10px' }} className="btn btn-outline-secondary search-button" onClick={this.searchByTag}>Search</Button>
+          <Button variant="contained" color="primary" style={{ marginTop: '10px', marginLeft: '38px' }} className="btn btn-outline-secondary search-button" onClick={this.searchByTag}>Search</Button>
           <IconButton className="btn" style={{ marginTop: '12px', marginLeft: '5px' }} onClick={this.searchTagByVoice}><i className="fa fa-microphone" /></IconButton>
         </div>
         <div>

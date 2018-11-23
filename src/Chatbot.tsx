@@ -22,7 +22,8 @@ export default class Chatbot extends React.Component<IProps>{
           { value: 2, label: 'Adding', trigger: '4' },
           { value: 3, label: 'Deleting', trigger: '5' },
           { value: 5, label: 'Searching', trigger:'7'},
-          { value: 4, label: 'Editing', trigger:'6'}
+          { value: 4, label: 'Editing', trigger:'6'},
+          { value: 6, label: 'Share', trigger:'8'}
         ],
       },
       {
@@ -48,6 +49,11 @@ export default class Chatbot extends React.Component<IProps>{
       {
         id:'6',
         message:'To edit your own review, select one of your reviews by clicking the corresponding imgae, and then press edit button',
+        trigger:'2'
+      },
+      {
+        id:'8',
+        message:"To share the website along with your reviews, select one of the media platform buttons on the top right!",
         trigger:'2'
       }
     ]}

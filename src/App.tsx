@@ -25,7 +25,7 @@ const styles = (theme: Theme) =>
 
   createStyles({
     root: {
-      height: 400,
+      height: 500,
       width: '100%',
       marginTop: theme.spacing.unit * 3,
       overflowX: 'auto',
@@ -137,7 +137,7 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
       <Paper className={this.props.classes.root}>
         <Table className={this.props.classes.table}>
           <TableHead>
-            <TableRow>
+            <TableRow >
               <CustomTableCell>Image</CustomTableCell>
               <CustomTableCell>Title</CustomTableCell>
               <CustomTableCell numeric>Score</CustomTableCell>
@@ -149,12 +149,11 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
           <TableBody>
             {rows.map(row => {
               return (
-                <TableRow  hover className={this.props.classes.row} key={row.id}>
-                  {console.log(row.id)}
+                <TableRow hover className={this.props.classes.row} selected = {false} key={row.id}>
                   <CustomTableCell component="th" scope="row">
                     {row.Image}
                   </CustomTableCell>
-                  <CustomTableCell >{row.Title}</CustomTableCell>
+                  <CustomTableCell  >{row.Title}</CustomTableCell>
                   <CustomTableCell numeric>{row.Score}</CustomTableCell>
                   <CustomTableCell>{row.Tags}</CustomTableCell>
                   <CustomTableCell>{row.Comments}</CustomTableCell>
@@ -436,7 +435,6 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
 
 
   public displayPage() {
-
     if (this.state.isLoggedin) {
       const { open } = this.state;
       const verify = this.state.Authentication == this.state.currentShow.authentication
@@ -501,26 +499,26 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
             <Button variant="contained" color="primary" style={{ marginLeft: '50px', marginTop: '10px' }} disabled onClick={this.onOpenModalEdit}>Edit </Button>
             : ""}
           <Modal open={this.state.openEdit} onClose={this.onCloseModalEdit}>
-
+              
             <form>
               <div className="form-group">
                 <label>Tv Show Title</label>
-                <input type="text" className="form-control" id="show-edit-title-input" placeholder="Enter Title" value = {this.state.currentShow.title}  />
+                <input type="text" className="form-control" id="show-edit-title-input" placeholder="Enter Title"  />
                 <small className="form-text text-muted">You can edit any show later</small>
               </div>
               <div className="form-group">
                 <label>Tag</label>
-                <input type="text" className="form-control" id="show-edit-tag-input" placeholder="Enter Tag" value={this.state.currentShow.tags} />
+                <input type="text" className="form-control" id="show-edit-tag-input" placeholder="Enter Tag"  />
                 <small className="form-text text-muted">Tag is used for search</small>
               </div>
               <div className="form-group">
                 <label>Score</label>
-                <input type="number" min="0" max="10" className="form-control" id="show-edit-score-input" placeholder="Enter Score" value= {this.state.currentShow.score} />
+                <input type="number" min="0" max="10" className="form-control" id="show-edit-score-input" placeholder="Enter Score" />
                 <small className="form-text text-muted">Out of 10</small>
               </div>
               <div className="form-group">
                 <label>Comments</label>
-                <input type="text" className="form-control" id="show-edit-comment-input" placeholder="Enter Comments" value= {this.state.currentShow.comments} />
+                <input type="text" className="form-control" id="show-edit-comment-input" placeholder="Enter Comments"/>
                 <small className="form-text text-muted">Comments about the show</small>
               </div>
               <button type="button" className="btn" onClick={this.updateShow}>Save</button>
@@ -547,9 +545,8 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
       </div>)
     }
     else {
-      return (<div>
-        <div>
-          <div className="header-wrapper">
+      return (<div style={{backgroundColor:'aliceblue'}}>
+          <div className="header-wrapper"  >
             <div className="container header">
               <div className="static" style={{ textAlign: 'center' }}>
                 <h1><img src={tvlogo} height='150' width='350' /></h1>
@@ -558,7 +555,7 @@ class App extends React.Component<WithStyles<typeof styles>, IState> {
             </div>
           </div>
         </div>
-      </div>)
+      )
     }
   }
 
